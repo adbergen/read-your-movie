@@ -3,18 +3,13 @@ const axios = require("axios");
 const data = "";
 
 async function movieSearch({ title, userEmail }) {
-  // axios getting chicken coop api
   console.log("movieSearch title:", title);
-  var URL =
-    "https://chicken-coop.p.rapidapi.com/games/" +
-    title;
+  var key = process.env.OMDB_API_KEY;
+  var URL = "https://www.omdbapi.com/?t=" + title + key;
   console.log(URL);
   var config = {
     method: "get",
     url: URL,
-    headers: {
-      "x-rapidapi-key": "e18bac34e3msha5b66c083be9958p166170jsnd89d26158b34",
-    },
     data: data,
   };
 
@@ -25,14 +20,13 @@ async function movieSearch({ title, userEmail }) {
     console.log("movieSearch apiResp result", result);
     var dbResult = await db.Movie.create({
       title: result.title,
-      description: result.description,
-      releaseDate: result.releaseDate,
-      score: result.score,
-      developer: result.developer,
-      publisher: result.publisher[0],
-      genre: result.genre[0],
-      image: result.image,
+      plot: result.plot,
+      poster: result.poster,
+      director: result.director[0],
       rating: result.rating,
+      link: result.link,
+      released: result.released,
+      genre: result.genre[0],
       userEmail: userEmail,
     });
   } catch (error) {
@@ -40,10 +34,8 @@ async function movieSearch({ title, userEmail }) {
   }
   console.log("API Results", dbResult);
   return dbResult;
-
 }
 
-// Defining methods for the MoviesController
 module.exports = {
   findAll: function (req, res) {
     console.log("findAll");
@@ -97,6 +89,5 @@ module.exports = {
     var dbResult = await movieSearch(req.body);
     console.log("saveMovie dbResult", dbResult);
     return res.json(dbResult);
-
   },
 };

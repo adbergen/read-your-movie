@@ -23,6 +23,11 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/results", {
   useCreateIndex: true,
 });
 
+const connection = mongoose.connection;
+connection.once("open", () => {
+  console.log("MongoDB database connection established successfully");
+});
+
 // Start the API server
 server = app.listen(PORT, () => {
   console.log(`App listening on PORT: ${PORT}`);
