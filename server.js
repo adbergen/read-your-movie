@@ -1,9 +1,11 @@
 const express = require("express");
+const path = require("path");
 const mongoose = require("mongoose");
 const routes = require("./routes");
-const app = express();
-const path = require("path");
+require("dotenv").config();
+
 const PORT = process.env.PORT || 3001;
+const app = express();
 
 // Define middleware here
 app.use(express.urlencoded({ extended: true }));
@@ -12,8 +14,17 @@ app.use(express.json());
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));
 }
-// Add routes, both API and view
+
+//API routes
 app.use(routes);
+
+// Anything not targeting the API routes
+// Gets sent to the React front end.
+
+// Define any API routes before this runs
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "./client/build/index.html"));
+});
 
 // Connect to the Mongo DB
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/results", {
@@ -22,13 +33,11 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/results", {
   useUnifiedTopology: true,
   useCreateIndex: true,
 });
-
 const connection = mongoose.connection;
 connection.once("open", () => {
   console.log("MongoDB database connection established successfully");
 });
 
-// Start the API server
-server = app.listen(PORT, () => {
-  console.log(`App listening on PORT: ${PORT}`);
+app.listen(PORT, () => {
+  console.log(`🌎 ==> API server now on port ${PORT}!`);
 });
